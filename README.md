@@ -1,1 +1,1 @@
-<h1 align="center">Library Management App</h1>
+<h1 align="center" style="color:blue;">Library Management App</h1>
