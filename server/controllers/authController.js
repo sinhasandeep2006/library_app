@@ -96,9 +96,10 @@ export const verifyOTP = catchAsyncError(async (req, res, next) => {
     }
 
     // Get latest entry (newest)
-    const user = userAllEnteries[0];
+    let user = userAllEnteries[0];
     // Check if verificationCodeExpire exists
     if (!user.verificationCodeExpire) {
+      user = userAllEnteries[0];
       return next(new ErrorHandler("OTP expiration time not found", 400));
     }
     // Delete older unverified entries
@@ -138,8 +139,12 @@ console.log("OTP Expiry Time:", new Date(verificationCodeExpire).toISOString());
       [true, null, null, user.id]
     );
 
-    // Send token
-    sendToken(user, 200, "Account verified", res);
+    const [updatedUser] = await db.execute("SELECT * FROM users WHERE id = ?", [
+      user.id,
+    ]);
+    
+    // Send token with the updated user object
+    sendToken(updatedUser[0], 200, "Account verified", res);
   } catch (error) {
         console.error("Unexpected Error in verifyOTP:", error);
         return next(new ErrorHandler("Internal server error", 500));
